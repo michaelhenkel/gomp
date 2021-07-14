@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
@@ -94,16 +95,18 @@ func create(clusterName string) error {
 		if !instanceExists(instanceName, mpList) {
 			wg.Add(1)
 			go createInstance(hostname, instanceName, clusterPath, imagePath, &wg)
+			time.Sleep(time.Second * 2)
 		} else {
 			klog.Infof("instance %s already exists. Skipping", instanceName)
 		}
 	}
 	for i := 0; i < worker; i++ {
-		instanceName := fmt.Sprintf("w%d--%s", i, clusterName)
-		hostname := fmt.Sprintf("w%d.%s.%s", i, clusterName, suffix)
+		instanceName := fmt.Sprintf("x%d--%s", i, clusterName)
+		hostname := fmt.Sprintf("x%d.%s.%s", i, clusterName, suffix)
 		if !instanceExists(instanceName, mpList) {
 			wg.Add(1)
 			go createInstance(hostname, instanceName, clusterPath, imagePath, &wg)
+			time.Sleep(time.Second * 2)
 		} else {
 			klog.Infof("instance %s already exists. Skipping", instanceName)
 		}
@@ -127,8 +130,8 @@ func create(clusterName string) error {
 		}
 	}
 	for i := 0; i < worker; i++ {
-		instanceName := fmt.Sprintf("w%d--%s", i, clusterName)
-		hostname := fmt.Sprintf("w%d.%s.%s", i, clusterName, suffix)
+		instanceName := fmt.Sprintf("x%d--%s", i, clusterName)
+		hostname := fmt.Sprintf("x%d.%s.%s", i, clusterName, suffix)
 		for _, mp := range newMPList.List {
 			if mp.Name == instanceName {
 				instanceMap[hostname] = instanceIPRole{role: "worker", ip: mp.Ipv4[0]}
@@ -191,6 +194,7 @@ func inventory(instanceMap map[string]instanceIPRole, clusterName, suffix, clust
 		All: All{
 			Hosts: allHosts,
 			Vars: map[string]string{
+				"enable_dual_stack_networks": "true",
 				"enable_nodelocaldns":        "false",
 				"ansible_user":               "root",
 				"docker_image_repo":          "svl-artifactory.juniper.net/atom-docker-remote",
@@ -267,9 +271,10 @@ func createInstance(hostname, instanceName, path, imagePath string, wg *sync.Wai
 	cmdString := fmt.Sprintf("multipass launch -c %d -d %s -m %s -n %s --cloud-init %s file://%s", cpu, disk, memory, instanceName, cloudInitPath, imagePath)
 	cmdList := strings.Split(cmdString, " ")
 	klog.Infof("creating instance %s", instanceName)
-	out, err := exec.Command(cmdList[0], cmdList[1:]...).Output()
+
+	out, err := exec.Command(cmdList[0], cmdList[1:]...).CombinedOutput()
 	if err != nil {
-		klog.Fatal(string(out), cmdString, err)
+		klog.Errorln("ERROR", err, string(out), cmdString)
 	}
 }
 
