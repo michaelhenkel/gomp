@@ -54,6 +54,11 @@ func delete(clusterName string) error {
 		}
 	}
 	wg.Wait()
+	//time.Sleep(time.Second * 3)
+	_, err = exec.Command("multipass", "purge").Output()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

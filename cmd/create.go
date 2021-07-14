@@ -191,6 +191,7 @@ func inventory(instanceMap map[string]instanceIPRole, clusterName, suffix, clust
 		All: All{
 			Hosts: allHosts,
 			Vars: map[string]string{
+				"enable_nodelocaldns":        "false",
 				"ansible_user":               "root",
 				"docker_image_repo":          "svl-artifactory.juniper.net/atom-docker-remote",
 				"cluster_name":               fmt.Sprintf("%s.%s", clusterName, suffix),
