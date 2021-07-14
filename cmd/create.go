@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -194,8 +195,12 @@ func inventory(instanceMap map[string]instanceIPRole, clusterName, suffix, clust
 		All: All{
 			Hosts: allHosts,
 			Vars: map[string]string{
-				"enable_dual_stack_networks": "true",
+				//"dns_mode":                   "coredns",
+				//"nodelocaldns_ip":            "10.96.0.10",
 				"enable_nodelocaldns":        "false",
+				"download_run_once":          "true",
+				"download_localhost":         "true",
+				"enable_dual_stack_networks": "true",
 				"ansible_user":               "root",
 				"docker_image_repo":          "svl-artifactory.juniper.net/atom-docker-remote",
 				"cluster_name":               fmt.Sprintf("%s.%s", clusterName, suffix),
@@ -233,6 +238,7 @@ func inventory(instanceMap map[string]instanceIPRole, clusterName, suffix, clust
 		return err
 	}
 	inventoryString := strings.Replace(string(inventoryByte), "{}", "", -1)
+	inventoryString = regexp.MustCompile(`"(true|false)"`).ReplaceAllString(inventoryString, `$1`)
 	if err := os.WriteFile(clusterPath+"/inventory.yaml", []byte(inventoryString), 0600); err != nil {
 		return err
 	}
