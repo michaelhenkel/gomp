@@ -1,0 +1,12 @@
+name: cluster1
+hosts:
+  - name: s30
+    address: 10.87.64.31
+    controllers: 3
+    workers: 3
+    gateway: 192.168.64.1/22
+  - name: s31
+    address: 10.87.64.32
+    controllers: 0
+    workers: 7
+    gateway: 192.168.65.1/22

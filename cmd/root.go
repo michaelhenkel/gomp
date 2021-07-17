@@ -8,12 +8,14 @@ import (
 )
 
 var (
-	worker     int
-	controller int
-	cpu        int
-	disk       string
-	memory     string
-	keyPath    string
+	worker         int
+	controller     int
+	cpu            int
+	disk           string
+	memory         string
+	privateKeyPath string
+	keyPath        string
+	file           string
 )
 
 func init() {

@@ -11,6 +11,14 @@
             "mode": "auto",
             "program": "/home/mhenkel/go/src/github.com/michaelhenkel/gomp/main.go",
             "args": ["-w","2","-n","3","create","cluster1"]
+        },
+        {
+            "name": "create cluster Package",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "/home/mhenkel/go/src/github.com/michaelhenkel/gomp/main.go",
+            "args": ["create","-f","config/cluster1.yaml"]
         }
     ]
 }
